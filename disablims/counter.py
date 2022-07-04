@@ -69,7 +69,25 @@ def sanitize_surname(value):
         sanitize_surname._seed += 1
 
 
+def sanitize_username(value):
+    """username
+    >>> sanitize_username(None)
+    >>> sanitize_username("jdoe")
+    'un0'
+    >>> sanitize_username("jdoe")
+    'un1'
+    >>>
+    """
+    if not value:
+        return value
+    try:
+        return "un{0}".format(sanitize_username._seed)
+    finally:
+        sanitize_username._seed += 1
+
+
 sanitize_phone._seed = 1_555_555_0000
 sanitize_email._seed = 0
 sanitize_given_name._seed = 0
 sanitize_surname._seed = 0
+sanitize_username._seed = 0
