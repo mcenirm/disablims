@@ -18,11 +18,26 @@ class CountingSanitizer:
             self.seed += 1
 
 
+_sanitizers = {}
+
+
+def __getattr__(name: str):
+    if name.startswith("sanitize_"):
+        prefix = "".join(w[0] for w in name.removeprefix("sanitize_").split("_"))
+        s = _sanitizers.get(name)
+        if s is None:
+            s = CountingSanitizer(fmt=prefix + "{0}")
+            _sanitizers[name] = s
+        return s
+    raise AttributeError(f"module {__name__} has no attribute {name}")
+
+
 sanitize_phone = CountingSanitizer(seed=1_555_555_0000)
 sanitize_email = CountingSanitizer(fmt="em{0}@x{0}.sanitized.net")
 sanitize_given_name = CountingSanitizer(fmt="gn{0}")
 sanitize_surname = CountingSanitizer(fmt="sn{0}")
 sanitize_username = CountingSanitizer(fmt="un{0}")
+sanitize_test_item = __getattr__("sanitize_test_item")
 
 
 def test_phone():
@@ -77,4 +92,14 @@ def test_username():
     >>> sanitize_username("jdoe")
     'un1'
     >>>
+    """
+
+
+def test_test_item():
+    """test item
+    >>> sanitize_test_item(None)
+    >>> sanitize_test_item("test")
+    'ti0'
+    >>> sanitize_test_item("test")
+    'ti1'
     """
