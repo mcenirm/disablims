@@ -2,7 +2,7 @@ def sanitize_phone(value):
     if not value:
         return value
     try:
-        return sanitize_phone._seed
+        return str(sanitize_phone._seed)
     finally:
         sanitize_phone._seed += 1
 
