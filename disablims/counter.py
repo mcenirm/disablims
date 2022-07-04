@@ -1,24 +1,42 @@
 "overly simplistic sanitizers that just increment with each use"
 
+import dataclasses
 
-def sanitize_phone(value):
-    """phone number
+
+@dataclasses.dataclass(kw_only=True)
+class CountingSanitizer:
+    seed: int = 0
+    fmt: str = "{0}"
+    __doc__: str | None = None
+
+    def __call__(self, value):
+        if not value:
+            return value
+        try:
+            return self.fmt.format(self.seed)
+        finally:
+            self.seed += 1
+
+
+sanitize_phone = CountingSanitizer(seed=1_555_555_0000)
+sanitize_email = CountingSanitizer(fmt="em{0}@x{0}.sanitized.net")
+sanitize_given_name = CountingSanitizer(fmt="gn{0}")
+sanitize_surname = CountingSanitizer(fmt="sn{0}")
+sanitize_username = CountingSanitizer(fmt="un{0}")
+
+
+def test_phone():
+    """
+    phone number
     >>> sanitize_phone(None)
     >>> sanitize_phone("1234567890")
     '15555550000'
     >>> sanitize_phone(1928374650)
     '15555550001'
-    >>>
-    """
-    if not value:
-        return value
-    try:
-        return str(sanitize_phone._seed)
-    finally:
-        sanitize_phone._seed += 1
+    >>>"""
 
 
-def sanitize_email(value):
+def test_email():
     """email address
     >>> sanitize_email(None)
     >>> sanitize_email("jdoe@example.com")
@@ -27,15 +45,9 @@ def sanitize_email(value):
     'em1@x1.sanitized.net'
     >>>
     """
-    if not value:
-        return value
-    try:
-        return "em{0}@x{0}.sanitized.net".format(sanitize_email._seed)
-    finally:
-        sanitize_email._seed += 1
 
 
-def sanitize_given_name(value):
+def test_given_name():
     """given name
     >>> sanitize_given_name(None)
     >>> sanitize_given_name("John")
@@ -44,15 +56,9 @@ def sanitize_given_name(value):
     'gn1'
     >>>
     """
-    if not value:
-        return value
-    try:
-        return "gn{0}".format(sanitize_given_name._seed)
-    finally:
-        sanitize_given_name._seed += 1
 
 
-def sanitize_surname(value):
+def test_surname():
     """surname
     >>> sanitize_surname(None)
     >>> sanitize_surname("John")
@@ -61,15 +67,9 @@ def sanitize_surname(value):
     'sn1'
     >>>
     """
-    if not value:
-        return value
-    try:
-        return "sn{0}".format(sanitize_surname._seed)
-    finally:
-        sanitize_surname._seed += 1
 
 
-def sanitize_username(value):
+def test_username():
     """username
     >>> sanitize_username(None)
     >>> sanitize_username("jdoe")
@@ -78,16 +78,3 @@ def sanitize_username(value):
     'un1'
     >>>
     """
-    if not value:
-        return value
-    try:
-        return "un{0}".format(sanitize_username._seed)
-    finally:
-        sanitize_username._seed += 1
-
-
-sanitize_phone._seed = 1_555_555_0000
-sanitize_email._seed = 0
-sanitize_given_name._seed = 0
-sanitize_surname._seed = 0
-sanitize_username._seed = 0
